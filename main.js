@@ -4,6 +4,7 @@ const cpu = osu.cpu;
 const drive = osu.drive;
 const mem = osu.mem;
 const os = osu.os;
+const netstats = osu.netstat;
 
 const cpuInfos = async () => {
   const percentage = await cpu.usage();
@@ -57,11 +58,19 @@ const osInfos = async () => {
   return allInfos;
 };
 
+const netStatsInfos = async () => {
+  const netInfos = await netstats.stats();
+  const netInOutInfos = await osu.netstat.inOut();
+  console.log(netInfos), netInOutInfos;
+  return { netInfos, netInOutInfos };
+};
+
 const showPcInfos = async () => {
   cpuInfos();
   driveDiskInfos();
   memoryInfos();
   osInfos();
+  netStatsInfos();
 };
 
 showPcInfos();
