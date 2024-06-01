@@ -2,6 +2,7 @@ const osu = require('node-os-utils');
 
 const cpu = osu.cpu;
 const drive = osu.drive;
+const mem = osu.mem;
 
 const cpuInfos = async () => {
   const percentage = await cpu.usage();
@@ -26,9 +27,16 @@ const driveDiskInfos = async () => {
   return driveInfos;
 };
 
+const memoryInfos = async () => {
+  const memInfos = await mem.info();
+  console.log(memInfos);
+  return memInfos;
+};
+
 const showPcInfos = async () => {
   cpuInfos();
   driveDiskInfos();
+  memoryInfos();
 };
 
 showPcInfos();
