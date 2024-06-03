@@ -1,10 +1,7 @@
 const osu = require('node-os-utils');
+const os = require('node:os');
 
-const cpu = osu.cpu;
-const drive = osu.drive;
-const mem = osu.mem;
-const os = osu.os;
-const netstats = osu.netstat;
+const { cpu, drive, mem, netstat } = osu;
 
 const cpuInfos = async () => {
   const percentage = await cpu.usage();
@@ -35,42 +32,35 @@ const memoryInfos = async () => {
   return memInfos;
 };
 
-const osInfos = async () => {
-  const oos = await os.oos();
-  const platform = os.platform();
-  const arch = os.arch();
-  const type = os.type();
-  const uptime = os.uptime();
-  const hostname = os.hostname();
-  const ip = os.ip();
-
-  const allInfos = {
-    platform,
-    oos,
-    arch,
-    type,
-    uptime,
-    ip,
-    hostname,
-  };
-
-  console.log(allInfos);
-  return allInfos;
-};
-
 const netStatsInfos = async () => {
-  const netInfos = await netstats.stats();
-  const netInOutInfos = await osu.netstat.inOut();
-  console.log(netInfos), netInOutInfos;
+  const netInfos = await netstat.stats();
+  const netInOutInfos = await netstat.inOut();
+  console.log({ netInfos, netInOutInfos });
   return { netInfos, netInOutInfos };
 };
 
 const showPcInfos = async () => {
-  cpuInfos();
-  driveDiskInfos();
-  memoryInfos();
-  osInfos();
-  netStatsInfos();
+  const cpuInfo = await cpuInfos();
+  const driveInfo = await driveDiskInfos();
+  const memoryInfo = await memoryInfos();
+  const netInfo = await netStatsInfos();
+
+  console.log('CPU Info:', cpuInfo);
+  console.log('Drive Info:', driveInfo);
+  console.log('Memory Info:', memoryInfo);
+  console.log('Network Info:', netInfo);
+
+  os.cpus().forEach((cpu) => console.log(cpu));
+  console.log({
+    release: os.release(),
+    totalmem: os.totalmem(),
+    type: os.type(),
+    arch: os.arch(),
+    hostname: os.hostname(),
+    machine: os.machine(),
+    platform: os.platform(),
+    version: os.version(),
+  });
 };
 
 showPcInfos();
