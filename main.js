@@ -9,49 +9,56 @@ const cpuInfos = async () => {
   const free = await cpu.free();
   const cores = cpu.count();
 
-  const cpuInfos = {
-    model,
-    cores,
-    percentage,
-    free,
-  };
-
-  console.log(cpuInfos);
-  return cpuInfos;
+  return { model, cores, percentage, free };
 };
 
 const driveDiskInfos = async () => {
-  const driveInfos = await drive.info();
-  console.log(driveInfos);
-  return driveInfos;
+  return await drive.info();
 };
 
 const memoryInfos = async () => {
-  const memInfos = await mem.info();
-  console.log(memInfos);
-  return memInfos;
+  return await mem.info();
 };
 
 const netStatsInfos = async () => {
   const netInfos = await netstat.stats();
   const netInOutInfos = await netstat.inOut();
-  console.log({ netInfos, netInOutInfos });
   return { netInfos, netInOutInfos };
 };
 
+const formatTable = async (title, data) => {
+  const chalk = (await import('chalk')).default;
+  const Table = (await import('cli-table')).default;
+
+  const table = new Table({ head: [chalk.cyan(title), chalk.cyan('Info')] });
+  Object.entries(data).forEach(([key, value]) => {
+    table.push([chalk.green(key), value]);
+  });
+  console.log(table.toString());
+};
+
 const showPcInfos = async () => {
+  const chalk = (await import('chalk')).default;
+
   const cpuInfo = await cpuInfos();
   const driveInfo = await driveDiskInfos();
   const memoryInfo = await memoryInfos();
   const netInfo = await netStatsInfos();
 
-  console.log('CPU Info:', cpuInfo);
-  console.log('Drive Info:', driveInfo);
-  console.log('Memory Info:', memoryInfo);
-  console.log('Network Info:', netInfo);
+  console.log(chalk.bold.blue('CPU Info:'));
+  await formatTable('CPU', cpuInfo);
 
-  os.cpus().forEach((cpu) => console.log(cpu));
-  console.log({
+  console.log(chalk.bold.blue('Drive Info:'));
+  await formatTable('Drive', driveInfo);
+
+  console.log(chalk.bold.blue('Memory Info:'));
+  await formatTable('Memory', memoryInfo);
+
+  console.log(chalk.bold.blue('Network Info:'));
+  await formatTable('Network', netInfo);
+
+  console.log(chalk.bold.blue('System Info:'));
+  const systemInfo = {
     release: os.release(),
     totalmem: os.totalmem(),
     type: os.type(),
@@ -60,6 +67,13 @@ const showPcInfos = async () => {
     machine: os.machine(),
     platform: os.platform(),
     version: os.version(),
+  };
+  await formatTable('System', systemInfo);
+
+  console.log(chalk.bold.blue('CPU Details:'));
+  os.cpus().forEach((cpu, index) => {
+    console.log(chalk.green(`Core ${index + 1}:`));
+    console.table(cpu);
   });
 };
 
